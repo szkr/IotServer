@@ -1,0 +1,98 @@
+<!--suppress ThymeleafVariablesResolveInspection -->
+
+<div xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+     class="col-md-12">
+    <nav class="navbar navbar-default" role="navigation">
+
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Home</a>
+        </div>
+
+        <ul class="nav navbar-nav" style="font-size: large">
+            <li th:class="${nav=='devices'?'active':''}"><a href="/devices" th:text="#{msg.devices}">Devices</a></li>
+            <li th:class="${nav=='manageDevices'?'active':''}"><a href="/manageDevices" th:text="#{msg.manageDevices}">Manage
+                devices</a></li>
+            <li th:class="${nav=='manageUsers'?'active':''}"><a href="/manageUsers" th:text="#{msg.manageUsers}">Manage
+                users</a></li>
+            <li><a href="/con" th:text="#{msg.sqlConsole}">Console</a></li>
+
+            <!--<li class="dropdown">-->
+                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">-->
+                    <!--Java-->
+                    <!--<b class="caret"></b>-->
+                <!--</a>-->
+                <!--<ul class="dropdown-menu">-->
+                    <!--<li><a href="#">jmeter</a></li>-->
+                    <!--<li><a href="#">EJB</a></li>-->
+                    <!--<li><a href="#">Jasper Report</a></li>-->
+
+                    <!--<li class="divider"></li>-->
+                    <!--<li><a href="#">Separated link</a></li>-->
+
+                    <!--<li class="divider"></li>-->
+                    <!--<li><a href="#">One more separated link</a></li>-->
+                <!--</ul>-->
+            <!--</li>-->
+
+        </ul>
+
+
+        <div th:if="${nav!='login'}">
+            <form sec:authorize="!isAuthenticated()" class="navbar-form navbar-right"
+                  style="margin-left: 3px;margin-right: 3px;font-size: large" action="#" th:action="@{/login}"
+                  method="post">
+
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                    <input id="username" name="username" class="form-control" value=""
+                           placeholder="Username" th:placeholder="#{msg.username}"></input>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                    <input name="password" id="password" type="password" class="form-control" value=""
+                           placeholder="Password" th:placeholder="#{msg.pass}"></input>
+                </div>
+                <div class="input-group">
+                    <div class="checkbox">
+                        <input type="checkbox" name="remember-me" id="remember-me" th:text="#{msg.remember}"></input>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-default" th:text="#{msg.logIn}">Login</button>
+            </form>
+
+
+            <form th:with="auth=#{msg.auth}" sec:authorize="isAuthenticated()" class="navbar-form navbar-right"
+                  action="#" th:action="@{/logout}"
+                  method="post" style="margin-left: 3px;margin-right: 3px;font-size: large">
+                <p class="form-group" style="vertical-align: middle"
+                   th:text="${auth+(#authentication.name)+'&nbsp;'}">
+                    Admin
+                </p>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default inline" th:text="#{msg.logout}">Logout</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            $(document).ready(function () {
+                if (typeof $.cookie('locale') === 'undefined') {
+                    console.log("no cookie");
+                    $.cookie("locale", "pl", {path: '/'});
+                }
+
+
+                $($.cookie('locale') == "pl" ? "#pl" : "#en").css("font-weight", "Bold");
+                $("#lang").click(function () {
+                    $.cookie("locale", ($.cookie("locale") == "pl" ? "en" : "pl"), {path: '/'});
+                    location.reload();
+                });
+
+            });
+        </script>
+        <h6 id="lang" class="inline navbar-right"
+            style="margin-left: 20px;margin-right: 20px;line-height: 30px; cursor: pointer">
+            <span id="pl">PL</span>/<span id="en">EN</span>
+        </h6>
+    </nav>
+</div>

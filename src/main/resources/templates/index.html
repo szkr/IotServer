@@ -1,0 +1,17 @@
+<!--suppress ThymeleafVariablesResolveInspection -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:include="fragments/header"></head>
+
+
+<body class="bbg container-fluid">
+<div class="row" th:with="nav=${'index'}" th:include="fragments/navbar"></div>
+<div class="row">
+    <div class="col-md-4 col-md-offset-4 jumbotron">
+        <h6 sec:authorize="isAuthenticated()"> Authorized</h6>
+        <a href="/login">Logowanie</a>
+    </div>
+    <div class="col-md-2 col-md-offset-2" th:include="fragments/sideInfo">
+    </div>
+</div>
+</body>
+</html>

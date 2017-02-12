@@ -1,0 +1,103 @@
+<!--suppress ThymeleafVariablesResolveInspection -->
+<link rel="stylesheet" href="/css/rangeslider.css"/>
+
+<script src="/js/rangeslider.js"></script>
+<script>/*<![CDATA[*/
+$("document").ready(function () {
+    var sId = selectedID;
+    var lastSend = 0;
+    $('input[type="range"]').rangeslider({
+
+        // Feature detection the default is `true`.
+        // Set this to `false` if you want to use
+        // the polyfill also in Browsers which support
+        // the native <input type="range"> element.
+        polyfill: false,
+
+        // Default CSS classes
+        rangeClass: 'rangeslider',
+        disabledClass: 'rangeslider--disabled',
+        horizontalClass: 'rangeslider--horizontal',
+        verticalClass: 'rangeslider--vertical',
+        fillClass: 'rangeslider__fill',
+        handleClass: 'rangeslider__handle',
+
+        // Callback function
+        onInit: function () {
+        },
+
+
+        // Callback function
+        onSlide: function (position, value) {
+            if (Date.now() > lastSend) {
+                lastSend = Date.now() + 80;
+                $.getJSON("/devices/lampa/" + sId + "/setBrightness/" + value);
+                console.log(value)
+            }
+        },
+
+        // Callback function
+        onSlideEnd: function (position, value) {
+        }
+    });
+    $(".btn").click(function () {
+        var x = $(this).data("mode");
+        setTimeout(function () {
+            $.getJSON("/devices/lampa/" + sId + "/setMode/" + x, function (jd) {
+                setPressedButton(jd.mode);
+            });
+        }, 1);
+    });
+    for (var i = 0; i < timeouts.length; i++)
+        clearTimeout(timeouts[i]);
+    updateStatus();
+    updateBrightness();
+
+    function setPressedButton(s) {
+        $('.btn').removeClass('active');
+        if (s == "ON")
+            $("#b1").button('toggle');
+        else if (s == "OFF")
+            $("#b2").button('toggle');
+        else if (s == "AUTO")
+            $("#b3").button('toggle');
+    }
+
+    function updateStatus() {
+        $.getJSON("/devices/lampa/" + sId + "/status", function (jd) {
+            $("#mode").text("Status: " + jd.lastActivity);
+
+            timeouts.push(setTimeout(function () {
+                updateStatus()
+            }, 1000));
+        });
+    }
+
+    function updateBrightness() {
+        $.getJSON("/devices/lampa/" + sId + "/getAmbientBrightness", function (jd) {
+            $("#env_brightness").text("Env brightness: " + jd.ambientBrightness);
+            timeouts.push(setTimeout(function () {
+                updateBrightness()
+            }, 1000));
+        });
+    }
+});
+/*]]>*/</script>
+<div xmlns:th="http://www.thymeleaf.org"
+     style="text-align: center">
+    <h1 style="text-align: left" id="mode">Status:</h1>
+    <h1 th:text="${type}"></h1>
+    <div class="btn-group btn-group-lg" role="group">
+        <button data-mode="ON" type="button" class="btn" id="b1">On</button>
+        <button data-mode="OFF" type="button" class="btn" id="b2">Off</button>
+        <button data-mode="AUTO" type="button" class="btn" id="b3">Auto</button>
+    </div>
+    <div style="margin-top: 20px">
+        <input type="range" min="0" max="1023" step="1" value="300"></input></div>
+    <h1 th:text="${'Env brightness: ' + envBrightness}" id="env_brightness">Env brightness</h1>
+
+        <ul class="list-group" style="overflow-y:auto; max-height: 600px; width: 300px;margin: auto">
+            <li class="list-group-item" th:each="det:${detections}" th:text="${det.getDetectionTime()}"></li>
+        </ul>
+
+</div>

@@ -1,0 +1,13 @@
+<div xmlns:th="http://www.thymeleaf.org"
+     style="text-align: center">
+    <h1 style="text-align: left" id="mode">Status:</h1>
+    <h1 th:text="${type}"></h1>
+    <div class="btn-group btn-group-lg" role="group">
+        <button data-mode="ON" type="button" class="btn" id="b1">On</button>
+        <button data-mode="OFF" type="button" class="btn" id="b2">Off</button>
+        <button data-mode="AUTO" type="button" class="btn" id="b3">Auto</button>
+    </div>
+    <div style="margin-top: 20px">
+        <input type="range" min="0" max="1023" step="1" value="300"></input></div>
+    <h1 th:text="${'Env brightness :' + envBrightness}" id="env_brightness">Env brightness</h1>
+</div>

@@ -1,0 +1,68 @@
+<!--suppress ThymeleafVariablesResolveInspection -->
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/header">
+</head>
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    var timeouts = [];
+    var selectedID = 0;
+    $(document).ready(function () {
+
+        $(window).resize(function () {
+            var height = window.innerHeight - $('#knavbar').height();
+            $('#conrow').css('minHeight', height);
+            $('#conrow').css('maxHeight', height);
+            $('#leftCol').css('minHeight', height);
+            $('#leftCol').css('maxHeight', height);
+        });
+
+        $(window).resize();
+
+        (function ($) {
+            $(window).on("load", function () {
+                $("#leftCol").mCustomScrollbar();
+            });
+        })(jQuery);
+
+        $(".sidebar-item").click(function () {
+            loadItem($(this).attr("data-dev-id"));
+        });
+
+        var itl = [[${idToLoad}]];
+        loadItem(itl >= 0 ? itl : 'new');
+    });
+    function loadItem(id) {
+        var elem = $(".sidebar-item").filterByData("dev-id", id);
+        $(".sidebar-item").each(function (index) {
+            $(this).css('background-color', '');
+        });
+        elem.css('background-color', 'rgba(255, 255, 255, 0.11)');
+        selectedID = id;
+        $("#contentColumn").load("/manageUsers/get/" + id);
+    }
+    $.fn.filterByData = function(prop, val) {
+        return this.filter(
+            function() { return $(this).data(prop)==val; }
+        );
+    };
+    /*]]>*/
+</script>
+
+<body class="bbg container-fluid" style="height: 100%">
+<div id="knavbar" class="row" th:with="nav=${'manageUsers'}" th:include="fragments/navbar"></div>
+<div class="row" id="conrow">
+    <div class="col-lg-2 col-md-3 pre-scrollable" id="leftCol" style="overflow: hidden">
+        <ul class="sidebar-nav" id="sidebar">
+            <li th:each="usr:${users}"><a href="#" th:attr="data-dev-id=${usr.getId()}" class="sidebar-item"
+                                            th:text="${usr.getLogin()}">usr</a></li>
+            <li><a href="#" th:attr="data-dev-id=new" class="sidebar-item"
+                   th:text="#{msg.new}">usr</a></li>
+        </ul>
+    </div>
+    <div class="col-md-9 col-lg-10" id="contentColumn"></div>
+</div>
+</body>
+</html>
