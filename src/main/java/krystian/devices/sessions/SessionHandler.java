@@ -1,9 +1,11 @@
 package krystian.devices.sessions;
 
+import krystian.IotServer;
 import krystian.devices.device.Device;
 import krystian.devices.device.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -24,9 +26,35 @@ public class SessionHandler {
     @Autowired
     public SessionHandler(DeviceRepository deviceRepository) {
         this.deviceRepository = deviceRepository;
+        new Thread(() -> {
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                for (Map.Entry<String, WSSession> e : new HashMap<>(sessions).entrySet()) {
+                    if (!e.getValue().getSession().isOpen() || e.getValue().getLastMsgTime().get() + 40000 < System.currentTimeMillis()) {
+                        disconnectSession(e.getKey());
+                        continue;
+                    }
+                    if (e.getValue().getLastMsgTime().get() + 20000 < System.currentTimeMillis()) {
+                        try {
+                            e.getValue().getSession().sendMessage(
+                                    new TextMessage(String.format("{\"key\":\"%s\", \"command\":\"heartbeat\"}", IotServer.serverKey)));
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+        }).start();
     }
 
     public synchronized void updateSession(String key, WebSocketSession session) {
+        System.out.println(key);
         if (sessions.containsKey(key)) {
             if (sessions.get(key).getSession() != session) {
                 disconnectSession(key);
@@ -59,6 +87,14 @@ public class SessionHandler {
             sessions.remove(key);
 
         }
+    }
+
+    public synchronized void disconnectSession(WebSocketSession session) {
+        for (Map.Entry<String, WSSession> e : sessions.entrySet())
+            if (e.getValue().getSession() == session) {
+                disconnectSession(e.getKey());
+                break;
+            }
     }
 
     public Optional<WSSession> getSession(String deviceKey) {

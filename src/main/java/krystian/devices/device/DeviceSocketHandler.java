@@ -2,7 +2,6 @@ package krystian.devices.device;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import krystian.IotServer;
 import krystian.devices.device.dto.MessageWithId;
 import krystian.devices.sessions.DeviceMessage;
 import krystian.devices.sessions.SessionHandler;
@@ -13,7 +12,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,44 +22,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class DeviceSocketHandler extends TextWebSocketHandler {
 
+    public final long maxIdleTime = 30000;
     protected final SessionHandler handler;
     protected final ObjectMapper mapper;
-
     private AtomicInteger msgId = new AtomicInteger();
     private ConcurrentHashMap<Integer, String> pending = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<WebSocketSession, Long> activeTimes = new ConcurrentHashMap<>();
-
-    public abstract String getPath();
-
-    public final long maxIdleTime = 30000;
 
     @Autowired
     public DeviceSocketHandler(SessionHandler handler, ObjectMapper mapper) {
         super();
-        new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                for (Map.Entry<WebSocketSession, Long> e : activeTimes.entrySet())
-                    if (e.getKey().isOpen() && e.getValue() + maxIdleTime < System.currentTimeMillis()) {
-                        sendMessage(IotServer.serverKey, e.getKey(), new TextMessage("keepalive"));
-                    }
-            }
-        });
         this.handler = handler;
         this.mapper = mapper;
     }
 
+    public abstract String getPath();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
     }
 
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
-        activeTimes.put(session, System.currentTimeMillis());
         DeviceMessage dm;
         try {
             dm = mapper.readValue(message.getPayload(), DeviceMessage.class);
@@ -106,7 +86,7 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
         }
 
 
-        if (sendMessage(key, se, msg)) return null;
+        if (sendMessage(se, msg)) return null;
         pending.put(id, "");
         for (int i = 0; i < timeout; i++) {
             if (!pending.get(id).equals("")) {
@@ -126,16 +106,15 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
         return null;
     }
 
-    public boolean sendMessage(String key, WebSocketSession se, TextMessage msg) {
+    public boolean sendMessage(WebSocketSession se, TextMessage msg) {
         try {
             AtomicBoolean completed = new AtomicBoolean(false);
             Thread t = new Thread(() -> {
                 try {
                     se.sendMessage(msg);
-                    activeTimes.put(se, System.currentTimeMillis());
                 } catch (IOException e) {
                     e.printStackTrace();
-                    handler.disconnectSession(key);
+                    handler.disconnectSession(se);
                 }
                 completed.set(true);
             });
@@ -153,7 +132,7 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            handler.disconnectSession(key);
+            handler.disconnectSession(se);
             return true;
         }
         return false;
