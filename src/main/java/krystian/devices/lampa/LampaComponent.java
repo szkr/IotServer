@@ -1,20 +1,19 @@
 package krystian.devices.lampa;
 
-import krystian.IotServer;
 import krystian.devices.device.Device;
+import krystian.devices.device.DeviceComponent;
 import krystian.devices.device.DeviceRepository;
+import krystian.devices.device.DeviceType;
 import krystian.devices.device.dto.DeviceStatus;
 import krystian.devices.device.dto.MessageWithId;
 import krystian.devices.lampa.dto.*;
+import krystian.devices.sessions.SessionHandler;
 import krystian.devices.sessions.WSSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import krystian.devices.device.DeviceComponent;
-import krystian.devices.device.DeviceType;
-import krystian.devices.sessions.SessionHandler;
 
 import java.util.Optional;
 
@@ -48,7 +47,6 @@ public class LampaComponent implements DeviceComponent {
         MessageWithId a = new MessageWithId() {
             public String command = "getAmbientBrightness";
         };
-        a.setKey(IotServer.serverKey);
         LampAmbientBrightness l = wsHandler.getResponse(deviceRepository.findOne(device.getId()).getKey(), a, LampAmbientBrightness.class);
         if (l == null) {
             l = new LampAmbientBrightness();
@@ -73,7 +71,6 @@ public class LampaComponent implements DeviceComponent {
         MessageWithId a = new MessageWithId() {
             public String command = "getMode";
         };
-        a.setKey(IotServer.serverKey);
         LampMode l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampMode.class);
         if (l == null) {
             l = new LampMode();
@@ -88,7 +85,6 @@ public class LampaComponent implements DeviceComponent {
             public LampMode.Mode mode = s;
             public String command = "setMode";
         };
-        a.setKey(IotServer.serverKey);
         LampMode l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampMode.class);
         if (l == null) {
             l = new LampMode();
@@ -102,7 +98,6 @@ public class LampaComponent implements DeviceComponent {
         MessageWithId a = new MessageWithId() {
             public String command = "getBrightness";
         };
-        a.setKey(IotServer.serverKey);
         LampBrightness l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampBrightness.class);
         if (l == null) {
             l = new LampBrightness();
@@ -116,7 +111,6 @@ public class LampaComponent implements DeviceComponent {
             public String command = "setBrightness";
             public int brightness = s;
         };
-        a.setKey(IotServer.serverKey);
         LampBrightness l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampBrightness.class);
         if (l == null) {
             l = new LampBrightness();
@@ -129,7 +123,6 @@ public class LampaComponent implements DeviceComponent {
         MessageWithId a = new MessageWithId() {
             public String command = "getBrightness";
         };
-        a.setKey(IotServer.serverKey);
         LampTimeOnAfterMove l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampTimeOnAfterMove.class);
         if (l == null) {
             l = new LampTimeOnAfterMove();
@@ -143,7 +136,6 @@ public class LampaComponent implements DeviceComponent {
             public String command = "setTimeOnAfterMove";
             public int timeOnAfterMove = s;
         };
-        a.setKey(IotServer.serverKey);
         LampTimeOnAfterMove l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampTimeOnAfterMove.class);
         if (l == null) {
             l = new LampTimeOnAfterMove();
@@ -156,7 +148,6 @@ public class LampaComponent implements DeviceComponent {
         MessageWithId a = new MessageWithId() {
             public String command = "getAmbientBrightness";
         };
-        a.setKey(IotServer.serverKey);
         Device d = deviceRepository.findOne(id);
         if (d == null)
             return new LampAmbientBrightness();
@@ -171,7 +162,6 @@ public class LampaComponent implements DeviceComponent {
         MessageWithId a = new MessageWithId() {
             public String command = "reset";
         };
-        a.setKey(IotServer.serverKey);
         LampReset l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampReset.class);
         if (l == null) {
             l = new LampReset();
@@ -185,7 +175,6 @@ public class LampaComponent implements DeviceComponent {
         MessageWithId a = new MessageWithId() {
             public String command = "getDeviceInfo";
         };
-        a.setKey(IotServer.serverKey);
         LampDeviceInfo l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampDeviceInfo.class);
         if (l == null) {
             l = new LampDeviceInfo();

@@ -1,6 +1,5 @@
 package krystian.devices.sessions;
 
-import krystian.IotServer;
 import krystian.devices.device.Device;
 import krystian.devices.device.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,7 @@ public class SessionHandler {
                     if (e.getValue().getLastMsgTime().get() + 15000 < System.currentTimeMillis()) {
                         try {
                             e.getValue().getSession().sendMessage(
-                                    new TextMessage(String.format("{\"key\":\"%s\", \"command\":\"heartbeat\"}", IotServer.serverKey)));
+                                    new TextMessage(String.format("{\"command\":\"heartbeat\"}")));
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
