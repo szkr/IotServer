@@ -53,7 +53,6 @@ public class SessionHandler {
     }
 
     public synchronized void updateSession(String key, WebSocketSession session) {
-        System.out.println(key);
         if (sessions.containsKey(key)) {
             if (sessions.get(key).getSession() != session) {
                 disconnectSession(key);
