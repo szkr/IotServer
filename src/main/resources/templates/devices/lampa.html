@@ -30,7 +30,7 @@ $("document").ready(function () {
         // Callback function
         onSlide: function (position, value) {
             if (Date.now() > lastSend) {
-                lastSend = Date.now() + 80;
+                lastSend = Date.now() + 120;
                 $.getJSON("/devices/lampa/" + sId + "/setBrightness/" + value);
                 console.log(value)
             }
@@ -69,7 +69,7 @@ $("document").ready(function () {
 
             timeouts.push(setTimeout(function () {
                 updateStatus()
-            }, 1000));
+            }, 2000));
         });
     }
 
@@ -78,7 +78,7 @@ $("document").ready(function () {
             $("#env_brightness").text("Env brightness: " + jd.ambientBrightness);
             timeouts.push(setTimeout(function () {
                 updateBrightness()
-            }, 1000));
+            }, 2000));
         });
     }
 });

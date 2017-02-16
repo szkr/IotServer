@@ -30,7 +30,7 @@ public class SessionHandler {
             //noinspection InfiniteLoopStatement
             while (true) {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -39,7 +39,7 @@ public class SessionHandler {
                         disconnectSession(e.getKey());
                         continue;
                     }
-                    if (e.getValue().getLastMsgTime().get() + 20000 < System.currentTimeMillis()) {
+                    if (e.getValue().getLastMsgTime().get() + 15000 < System.currentTimeMillis()) {
                         try {
                             e.getValue().getSession().sendMessage(
                                     new TextMessage(String.format("{\"key\":\"%s\", \"command\":\"heartbeat\"}", IotServer.serverKey)));
