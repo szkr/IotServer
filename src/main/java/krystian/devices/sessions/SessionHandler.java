@@ -34,14 +34,13 @@ public class SessionHandler {
                     e.printStackTrace();
                 }
                 for (Map.Entry<String, WSSession> e : new HashMap<>(sessions).entrySet()) {
-                    if (!e.getValue().getSession().isOpen() || e.getValue().getLastMsgTime().get() + 40000 < System.currentTimeMillis()) {
+                    if (!e.getValue().getSession().isOpen() || e.getValue().getLastRcvMsgTime().get() + 40000 < System.currentTimeMillis()) {
                         disconnectSession(e.getKey());
                         continue;
                     }
-                    if (e.getValue().getLastMsgTime().get() + 15000 < System.currentTimeMillis()) {
+                    if (e.getValue().getLastRcvMsgTime().get() + 15000 < System.currentTimeMillis() || e.getValue().getLastSentMsgTime().get() + 15000 < System.currentTimeMillis()) {
                         try {
-                            e.getValue().getSession().sendMessage(
-                                    new TextMessage(String.format("{\"command\":\"heartbeat\"}")));
+                            e.getValue().sendMessage(new TextMessage(String.format("{\"command\":\"heartbeat\"}")));
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
@@ -62,7 +61,7 @@ public class SessionHandler {
                     sessions2.put(session, d);
                 return;
             }
-            sessions.get(key).getLastMsgTime().set(System.currentTimeMillis());
+            sessions.get(key).getLastRcvMsgTime().set(System.currentTimeMillis());
         } else {
             sessions.put(key, new WSSession(session));
             Device d = deviceRepository.findOneByKey(key);

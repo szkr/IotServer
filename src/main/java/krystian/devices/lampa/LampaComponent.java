@@ -63,7 +63,7 @@ public class LampaComponent implements DeviceComponent {
         Device d = deviceRepository.findOne(id);
         if (d == null) return new DeviceStatus(-1);
         Optional<WSSession> s = sessionHandler.getSession(d.getKey());
-        return new DeviceStatus(s.isPresent() ? System.currentTimeMillis() - s.get().getLastMsgTime().get() : -1);
+        return new DeviceStatus(s.isPresent() ? System.currentTimeMillis() - s.get().getLastRcvMsgTime().get() : -1);
     }
 
     @RequestMapping("devices/lampa/{id}/getMode")
@@ -157,15 +157,15 @@ public class LampaComponent implements DeviceComponent {
         return l;
     }
 
-    @RequestMapping("devices/lampa/{id}/reset")
-    public LampReset reset(@PathVariable("id") int id) {
+    @RequestMapping("devices/lampa/{id}/restart")
+    public LampRestart reset(@PathVariable("id") int id) {
         MessageWithId a = new MessageWithId() {
-            public String command = "reset";
+            public String command = "restart";
         };
-        LampReset l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampReset.class);
+        LampRestart l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampRestart.class);
         if (l == null) {
-            l = new LampReset();
-            l.reset = false;
+            l = new LampRestart();
+            l.restart = false;
         }
         return l;
     }
@@ -180,5 +180,25 @@ public class LampaComponent implements DeviceComponent {
             l = new LampDeviceInfo();
         }
         return l;
+    }
+
+    @RequestMapping("devices/lampa/{id}/updateFirmware/{name}")
+    public LampUpdateFirmware enableOta(@PathVariable("id") int id, @PathVariable("name") String name) {
+        MessageWithId a = new MessageWithId() {
+            public String command = "updateFirmware";
+            public String firmwareName = name;
+        };
+        LampUpdateFirmware l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampUpdateFirmware.class);
+        if (l == null) {
+            l = new LampUpdateFirmware();
+            l.update = false;
+        }
+        return l;
+    }
+
+    @RequestMapping("devices/lampa/{id}/getDeviceAddress")
+    public String getDeviceAddress(@PathVariable("id") int id) {
+        Optional<WSSession> x = sessionHandler.getSession(deviceRepository.findOne(id).getKey());
+        return x.map(wsSession -> wsSession.getSession().getRemoteAddress().getHostName()).orElse("unknown");
     }
 }

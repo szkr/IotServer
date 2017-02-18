@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class DeviceSocketHandler extends TextWebSocketHandler {
 
-    public final long maxIdleTime = 30000;
     protected final SessionHandler handler;
     protected final ObjectMapper mapper;
     private AtomicInteger msgId = new AtomicInteger();
@@ -86,7 +85,7 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
         }
 
 
-        if (sendMessage(se, msg)) return null;
+        if (sendMessage(sess.get(), msg)) return null;
         pending.put(id, "");
         for (int i = 0; i < timeout; i++) {
             if (!pending.get(id).equals("")) {
@@ -106,7 +105,7 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
         return null;
     }
 
-    public boolean sendMessage(WebSocketSession se, TextMessage msg) {
+    public boolean sendMessage(WSSession se, TextMessage msg) {
         try {
             AtomicBoolean completed = new AtomicBoolean(false);
             Thread t = new Thread(() -> {
@@ -114,7 +113,7 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
                     se.sendMessage(msg);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    handler.disconnectSession(se);
+                    handler.disconnectSession(se.getSession());
                 }
                 completed.set(true);
             });
@@ -132,7 +131,7 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            handler.disconnectSession(se);
+            handler.disconnectSession(se.getSession());
             return true;
         }
         return false;
