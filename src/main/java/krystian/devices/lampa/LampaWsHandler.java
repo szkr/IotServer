@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import krystian.devices.device.Device;
 import krystian.devices.device.DeviceSocketHandler;
 import krystian.devices.device.dto.MessageWithId;
+import krystian.devices.sessions.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import krystian.devices.sessions.SessionHandler;
 
 import java.util.Optional;
 
@@ -37,21 +37,19 @@ public class LampaWsHandler extends DeviceSocketHandler {
 
     }
 
-    private static class MotionDetectionDTO extends MessageWithId {
-        public boolean motionDetect;
-    }
-
     private void storeMotions(WebSocketSession session, TextMessage message) {
         Optional<Device> d = handler.getDevice(session);
         if (d.isPresent()) {
             try {
                 MotionDetectionDTO m = mapper.readValue(message.getPayload(), MotionDetectionDTO.class);
-                if (m.motionDetect) {
-                    System.out.println(message.getPayload());
+                if (m.motionDetect)
                     motionDetectRepository.save(new MotionDetect(d.get()));
-                }
             } catch (Throwable e) {
             }
         }
+    }
+
+    private static class MotionDetectionDTO extends MessageWithId {
+        public boolean motionDetect;
     }
 }
