@@ -1,5 +1,6 @@
 package krystian.controller.users;
 
+import krystian.security.user.Role;
 import krystian.security.user.User;
 import krystian.security.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +91,7 @@ public class ManageUsersController {
         User u = new User();
         u.setPassword(formData.getFirst("pass"));
         u.setLogin(formData.getFirst("login"));
+        u.setRole(Role.USER);
         try {
             users.save(u);
         } catch (DataIntegrityViolationException e) {

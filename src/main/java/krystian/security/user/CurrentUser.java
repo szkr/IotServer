@@ -1,13 +1,13 @@
 package krystian.security.user;
 
-import java.util.ArrayList;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 public class CurrentUser extends org.springframework.security.core.userdetails.User {
 
     private User user;
 
     public CurrentUser(User user) {
-        super(user.getLogin(), user.getPassword(), new ArrayList<>());
+        super(user.getLogin(), user.getPassword(), AuthorityUtils.createAuthorityList(user.getRole().toString()));
         this.user = user;
     }
 
@@ -17,8 +17,12 @@ public class CurrentUser extends org.springframework.security.core.userdetails.U
 
     public Long getId() {
         return user.getId();
+
     }
 
+    public Role getRole() {
+        return user.getRole();
+    }
 
     @Override
     public String toString() {

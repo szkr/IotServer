@@ -1,14 +1,15 @@
 package krystian.config;
 
 import krystian.devices.device.Device;
+import krystian.devices.device.DeviceRepository;
+import krystian.devices.device.DeviceType;
+import krystian.security.user.Role;
+import krystian.security.user.User;
 import krystian.security.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import krystian.devices.device.DeviceRepository;
-import krystian.devices.device.DeviceType;
-import krystian.security.user.User;
 
 /**
  * 2/11/2017 10:49 AM
@@ -32,6 +33,7 @@ public class DefaultData {
             User u = new User();
             u.setLogin("Admin");
             u.setPassword("1877admin");
+            u.setRole(Role.ADMIN);
             userRepository.save(u);
         }
     }
