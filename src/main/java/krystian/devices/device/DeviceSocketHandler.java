@@ -6,7 +6,6 @@ import krystian.devices.device.dto.MessageWithId;
 import krystian.devices.sessions.DeviceMessage;
 import krystian.devices.sessions.SessionHandler;
 import krystian.devices.sessions.WSSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -27,7 +26,7 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
     private AtomicInteger msgId = new AtomicInteger();
     private ConcurrentHashMap<Integer, String> pending = new ConcurrentHashMap<>();
 
-    @Autowired
+
     public DeviceSocketHandler(SessionHandler handler, ObjectMapper mapper) {
         super();
         this.handler = handler;
@@ -77,13 +76,11 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
         command.id = id;
 
         TextMessage msg = null;
-        WebSocketSession se = sess.get().getSession();
         try {
             msg = new TextMessage(mapper.writeValueAsString(command));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-
 
         if (sendMessage(sess.get(), msg)) return null;
         pending.put(id, "");
