@@ -72,7 +72,6 @@ public class ManageUsersController {
                 found.setPassword(formData.getFirst("pass"));
             users.save(found);
         } catch (Exception e) {
-            e.printStackTrace();
             return "error";
         }
         return "ok";

@@ -21,8 +21,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static krystian.IotServerTests.test;
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -35,24 +34,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ManageUsersControllerTest {
 
+    private static long createdUserId;
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private UserRepository userRepository;
 
-
-    private static long createdUserId;
-
     @Test
-    @WithMockUser(username = "Admin", roles = {"USER", "ADMIN"})
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void listContainsDefaultUser() throws Exception {
         this.mockMvc.perform(get("/manageUsers")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("<a href=\"#\" class=\"sidebar-item\" data-dev-id=\"1\">Admin</a>")));
     }
 
     @Test
-    @WithMockUser(username = "Admin", roles = {"USER", "ADMIN"})
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void getUserContainsEditForm() throws Exception {
         this.mockMvc.perform(get("/manageUsers/get/1")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("<form id=\"updateUser\">")))
@@ -60,14 +56,14 @@ public class ManageUsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "Admin", roles = {"USER", "ADMIN"})
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void getUserContainsRemoveForm() throws Exception {
         this.mockMvc.perform(get("/manageUsers/get/1")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("<button class=\"btn btn-primary\" id=\"remove\">")));
     }
 
     @Test
-    @WithMockUser(username = "Admin", roles = {"USER", "ADMIN"})
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void newUserPageContainsCreateForm() throws Exception {
         this.mockMvc.perform(get("/manageUsers/get/new")).andExpect(status().isOk())
                 .andExpect(content().string(containsString(" id=\"newUser\">")))
@@ -78,7 +74,7 @@ public class ManageUsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "Admin", roles = {"USER", "ADMIN"})
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t1createUserInvalidData() throws Exception {
         mockMvc.perform(post("/manageUsers/create")
                 .param("login", "test")
@@ -91,7 +87,7 @@ public class ManageUsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "Admin", roles = {"USER", "ADMIN"})
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t2createUser() throws Exception {
         MvcResult result = mockMvc.perform(post("/manageUsers/create")
                 .param("login", "test").param("pass", "testpass").param("type", "LAMP_WITH_SENSOR")
@@ -112,7 +108,7 @@ public class ManageUsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "Admin", roles = {"USER", "ADMIN"})
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t3createDuplicateUser() throws Exception {
         mockMvc.perform(post("/manageUsers/create")
                 .param("login", "test").param("pass", "testpass").param("type", "LAMP_WITH_SENSOR")
@@ -126,8 +122,7 @@ public class ManageUsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "Admin", roles = {"USER", "ADMIN"})
-
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t4AlterUserLogin() throws Exception {
         mockMvc.perform(post("/manageUsers/" + createdUserId + "/update")
                 .param("login", "testAltered")
@@ -139,6 +134,8 @@ public class ManageUsersControllerTest {
         Assert.assertEquals("testAltered", u.getLogin());
     }
 
+    @Test
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t5AlterUserPassword() throws Exception {
         mockMvc.perform(post("/manageUsers/" + createdUserId + "/update")
                 .param("pass", "testAltered")
@@ -150,22 +147,28 @@ public class ManageUsersControllerTest {
         Assert.assertEquals("testAltered", u.getPassword());
     }
 
+    @Test
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t6RemoveUser() throws Exception {
-        mockMvc.perform(post("/manageUsers/" + createdUserId + "/remove")
+        mockMvc.perform(delete("/manageUsers/" + createdUserId + "/remove")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("ok")));
         Assert.assertEquals(1, userRepository.count());
     }
 
+    @Test
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t7RemoveNonexistentUser() throws Exception {
-        mockMvc.perform(post("/manageUsers/" + createdUserId + "/remove")
+        mockMvc.perform(delete("/manageUsers/" + createdUserId + "/remove")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("error")));
         Assert.assertEquals(1, userRepository.count());
     }
 
+    @Test
+    @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t8alterNonexistentUserPassword() throws Exception {
         mockMvc.perform(post("/manageUsers/" + createdUserId + "/update")
                 .param("pass", "testAltered")
