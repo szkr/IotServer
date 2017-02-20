@@ -39,7 +39,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeRequests()
-                .antMatchers("/", "/public/**", "/res/**", "/css/**", "/fonts/**", "/js/**", "/fw/**", WebSocketConfig.WS_PREFIX + "**").permitAll()
+                .antMatchers("/", "/img/**", "/public/**", "/res/**", "/css/**", "/fonts/**", "/js/**", "/fw/**", WebSocketConfig.WS_PREFIX + "**").permitAll()
                 .anyRequest().hasAuthority("ADMIN")
                 .and()
                 .formLogin()
