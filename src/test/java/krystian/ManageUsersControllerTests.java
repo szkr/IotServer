@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ManageUsersControllerTest {
+public class ManageUsersControllerTests {
 
     private static long createdUserId;
     @Autowired
