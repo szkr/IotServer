@@ -11,6 +11,8 @@ public class IotServer extends WebMvcConfigurerAdapter {
     public static void main(String[] args) {
         SpringApplication.run(IotServer.class, args);
     }
+
+
 }
 
 
