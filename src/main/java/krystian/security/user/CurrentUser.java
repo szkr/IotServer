@@ -2,7 +2,9 @@ package krystian.security.user;
 
 import org.springframework.security.core.authority.AuthorityUtils;
 
-public class CurrentUser extends org.springframework.security.core.userdetails.User {
+import java.io.Serializable;
+
+public class CurrentUser extends org.springframework.security.core.userdetails.User implements Serializable {
 
     private User user;
 

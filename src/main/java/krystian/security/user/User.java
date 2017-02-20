@@ -1,13 +1,15 @@
 package krystian.security.user;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * 12/13/2016 11:47 PM
  */
+
 @Entity
 @Table(name = "users")
-public class User{
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, updatable = false)
