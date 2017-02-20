@@ -3475,7 +3475,7 @@
             uploadBatch: 'batch file upload',
             uploadExtra: 'form data upload'
         },
-        dropZoneTitle: 'Drag & drop files here &hellip;',
+        dropZoneTitle: 'Drag & drop firmware files here &hellip;',
         dropZoneClickTitle: '<br>(or click to select {files})',
         previewZoomButtonTitles: {
             prev: 'View previous file',

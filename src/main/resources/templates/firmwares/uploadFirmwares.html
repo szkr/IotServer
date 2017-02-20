@@ -1,0 +1,35 @@
+<!--suppress ThymeleafVariablesResolveInspection -->
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/header">
+</head>
+
+<link href="/css/fileinput.css" media="all" rel="stylesheet" type="text/css"/>
+<!-- the main fileinput plugin file -->
+<script src="/js/fileinput.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    /*]]>*/
+</script>
+
+<body class="bbg container-fluid" style="height: 100%">
+<div id="knavbar" class="row" th:with="nav=${'firmwares'}" th:include="fragments/navbar"></div>
+<div class="row">
+    <div class="col-lg-6 col-lg-offset-3 col-md-8 col-md-offset-2 col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1"
+         style="height: 600px;">
+        <input id="input-704" name="file" type="file" multiple="true" class="file-loading"></input>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            $("#input-704").fileinput({
+                uploadUrl: "/uploadFirmwares/add", // server upload action
+                uploadAsync: true,
+                minFileCount: 1,
+                maxFileCount: 3
+            });
+            /*]]>*/
+        </script>
+    </div>
+</div>
+</body>
+</html>
