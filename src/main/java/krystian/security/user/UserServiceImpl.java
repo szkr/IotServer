@@ -15,7 +15,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findOneByLogin(email);
+    public Optional<User> getUserByEmailIgnoreCase(String username) {
+        return userRepository.findOneByLoginIgnoreCase(username);
     }
 }
