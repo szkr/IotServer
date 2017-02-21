@@ -1,4 +1,5 @@
-<div class="col-md-4 col-md-offset-3" xmlns:th="http://www.thymeleaf.org">
+<!--suppress ThymeleafVariablesResolveInspection -->
+<div xmlns:th="http://www.thymeleaf.org" class="col-md-4 col-md-offset-3">
 
 
     <form id="updateDevice">
@@ -14,14 +15,39 @@
             <button type="submit" class="btn btn-primary" th:text="#{msg.update}">Update</button>
         </div>
     </form>
-    <div style="align-content: center; margin-top: 150px;" class="row"><div class="col-md-2 col-md-offset-5">
-    <button class="btn btn-primary" id="remove" th:text="#{msg.remove}">Remove</button></div></div>
-
+    <div style="align-content: center; margin-top: 100px;" class="row">
+        <div class="col-md-2 col-md-offset-5">
+            <button class="btn btn-primary" id="remove" th:text="#{msg.remove}">Remove</button>
+        </div>
+    </div>
+    <div style="align-content: center; margin-top: 100px;" class="row">
+        <div class="col-md-12">
+            <form id="updateFirmware">
+                <div class="form-group">
+                    <label for="fileId"
+                           th:text="${deviceIsOnline} ? #{msg.selectFirmware} : #{msg.deviceOffline}">Select
+                        firmware</label>
+                    <select class="form-control" id="fileId" name="fileId">
+                        <option th:each="file, iterstat : ${files}"
+                                th:value="${file.getName()}"
+                                th:text="${file.getOriginalName()}">
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button id="submitUpdateFirmware" type="submit" th:classappend="${deviceIsOnline}?'':'disabled'"
+                            class="btn btn-primary"
+                            th:text="#{msg.pushFirmware}">Update firmware
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script>/*<![CDATA[*/
     $("document").ready(function () {
-        var sId=selectedID;
+        var sId = selectedID;
         $("#updateDevice").submit(function (e) {
-            var url = "/manageDevices/"+sId+"/update"; // the script where you handle the form input.
+            var url = "/manageDevices/" + sId + "/update"; // the script where you handle the form input.
 
             $.ajax({
                 type: "POST",
@@ -29,18 +55,33 @@
                 data: $("#updateDevice").serialize(), // serializes the form's elements.
                 success: function (data) {
                     alert(data);
-                    window.location.replace("/manageDevices?open="+sId);
+                    window.location.replace("/manageDevices?open=" + sId);
                 }
             });
 
             e.preventDefault(); // avoid to execute the actual submit of the form.
         });
 
-        $("#remove").click(function(){
+        $("#updateFirmware").submit(function (e) {
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            if ($("#submitUpdateFirmware").hasClass("disabled")) return;
+            var url = "/manageDevices/" + sId + "/updateFirmware"; // the script where you handle the form input.
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: $("#updateFirmware").serialize(), // serializes the form's elements.
+                success: function (data) {
+                    alert(data);
+                }
+            });
+        });
+
+        $("#remove").click(function () {
             $.ajax({
                 type: 'DELETE',
-                url: "/manageDevices/"+sId+"/remove",
-                success: function(msg){
+                url: "/manageDevices/" + sId + "/remove",
+                success: function (msg) {
                     alert(msg);
                     window.location.replace("/manageDevices?open=-1");
                 }

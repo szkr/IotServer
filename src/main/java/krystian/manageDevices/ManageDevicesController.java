@@ -1,14 +1,17 @@
 package krystian.manageDevices;
 
-import krystian.devices.device.Device;
-import krystian.devices.device.DeviceRepository;
+import krystian.devices.device.*;
+import krystian.devices.device.dto.MessageWithId;
+import krystian.devices.device.dto.UpdateFirmware;
+import krystian.devices.sessions.SessionHandler;
+import krystian.firmwares.storage.FileDescriptionRepository;
+import krystian.firmwares.tempLink.LinkGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import krystian.devices.device.DeviceType;
 
 /**
  * 12/19/2016 2:12 PM
@@ -16,11 +19,22 @@ import krystian.devices.device.DeviceType;
 @Controller
 public class ManageDevicesController {
 
-    @Autowired
-    DeviceRepository devices;
+    private final DeviceRepository devices;
+    private final FileDescriptionRepository fileDescriptionRepository;
+    private final ApplicationContext context;
+    private final LinkGeneratorService linkGeneratorService;
+    private final SessionHandler sessionHandler;
 
     @Autowired
-    ApplicationContext context;
+    public ManageDevicesController(SessionHandler sessionHandler, DeviceRepository devices
+            , FileDescriptionRepository fileDescriptionRepository, ApplicationContext context
+            , LinkGeneratorService linkGeneratorService) {
+        this.devices = devices;
+        this.fileDescriptionRepository = fileDescriptionRepository;
+        this.context = context;
+        this.linkGeneratorService = linkGeneratorService;
+        this.sessionHandler = sessionHandler;
+    }
 
 
     @RequestMapping(value = "/manageDevices")
@@ -42,7 +56,8 @@ public class ManageDevicesController {
         Device found = devices.findOne(Integer.parseInt(id));
         if (found == null)
             return "devices/test";
-
+        model.addAttribute("deviceIsOnline", sessionHandler.isDeviceOnline(devices.findOne(Integer.parseInt(id)).getKey()));
+        model.addAttribute("files", fileDescriptionRepository.findAll());
         model.addAttribute("curName", found.getName());
         model.addAttribute("curKey", found.getKey());
         return "manageDevices/device";
@@ -59,12 +74,6 @@ public class ManageDevicesController {
         return "ok";
     }
 
-    private class CreateDeviceResponse {
-        public String status;
-        public String message;
-        public int createdDeviceId;
-    }
-
     @RequestMapping(value = "/manageDevices/{id}/update", method = RequestMethod.POST)
     @ResponseBody
     public String update(@PathVariable("id") String id, @RequestBody MultiValueMap<String, String> formData) {
@@ -77,6 +86,31 @@ public class ManageDevicesController {
             devices.save(found);
         } catch (Exception e) {
             return e.getMessage();
+        }
+        return "ok";
+    }
+
+    @RequestMapping(value = "/manageDevices/{id}/updateFirmware", method = RequestMethod.POST)
+    @ResponseBody
+    public String updateFirmware(@PathVariable("id") String id, @RequestBody MultiValueMap<String, String> formData) {
+
+        Device d = devices.findOne(Integer.parseInt(id));
+        if (d == null || !sessionHandler.isDeviceOnline(d.getKey())) return "device is offline";
+        DeviceSocketHandler handler = null;
+        for (DeviceComponent component : context.getBeansOfType(DeviceComponent.class).values())
+            if (component.getDeviceType() == d.getDeviceType())
+                handler = component.getHandler();
+        if (handler == null) return "could not find wshandler";
+
+        String mappedTo = linkGeneratorService.mapFile(10, formData.getFirst("fileId"));
+        MessageWithId a = new MessageWithId() {
+            public String command = "updateFirmware";
+            public String firmwareName = mappedTo;
+        };
+        UpdateFirmware l = handler.getResponse(d.getKey(), a, UpdateFirmware.class);
+        if (l == null) {
+            l = new UpdateFirmware();
+            l.update = false;
         }
         return "ok";
     }
@@ -98,5 +132,11 @@ public class ManageDevicesController {
         r.createdDeviceId = d.getId();
         r.status = "ok";
         return r;
+    }
+
+    private class CreateDeviceResponse {
+        public String status;
+        public String message;
+        public int createdDeviceId;
     }
 }

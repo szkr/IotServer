@@ -1,11 +1,9 @@
 package krystian.devices.lampa;
 
-import krystian.devices.device.Device;
-import krystian.devices.device.DeviceComponent;
-import krystian.devices.device.DeviceRepository;
-import krystian.devices.device.DeviceType;
+import krystian.devices.device.*;
 import krystian.devices.device.dto.DeviceStatus;
 import krystian.devices.device.dto.MessageWithId;
+import krystian.devices.device.dto.UpdateFirmware;
 import krystian.devices.lampa.dto.*;
 import krystian.devices.sessions.SessionHandler;
 import krystian.devices.sessions.WSSession;
@@ -56,6 +54,11 @@ public class LampaComponent implements DeviceComponent {
         model.addAttribute("envBrightness", l.ambientBrightness);
         model.addAttribute("detections", motionDetectRepository.findByDeviceOrderByDetectionTimeDesc(device));
         return "devices/lampa";
+    }
+
+    @Override
+    public DeviceSocketHandler getHandler() {
+        return wsHandler;
     }
 
     @RequestMapping("devices/lampa/{id}/status")
@@ -183,14 +186,14 @@ public class LampaComponent implements DeviceComponent {
     }
 
     @RequestMapping("devices/lampa/{id}/updateFirmware/{name}")
-    public LampUpdateFirmware enableOta(@PathVariable("id") int id, @PathVariable("name") String name) {
+    public UpdateFirmware enableOta(@PathVariable("id") int id, @PathVariable("name") String name) {
         MessageWithId a = new MessageWithId() {
             public String command = "updateFirmware";
             public String firmwareName = name;
         };
-        LampUpdateFirmware l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, LampUpdateFirmware.class);
+        UpdateFirmware l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, UpdateFirmware.class);
         if (l == null) {
-            l = new LampUpdateFirmware();
+            l = new UpdateFirmware();
             l.update = false;
         }
         return l;

@@ -8,4 +8,6 @@ import org.springframework.ui.Model;
 public interface DeviceComponent {
     DeviceType getDeviceType();
     String getPage(Model model, Device device);
+
+    DeviceSocketHandler getHandler();
 }

@@ -1,5 +1,6 @@
 package krystian.firmwares.storage;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -20,24 +22,35 @@ import java.util.stream.Stream;
 public class FirmwareStorageService implements StorageService {
     private final Path rootLocation = Paths.get("firmwares/");
 
-    public FirmwareStorageService() {
+    private final FileDescriptionRepository fileDescriptionRepository;
+
+
+    @Autowired
+    public FirmwareStorageService(FileDescriptionRepository fileDescriptionRepository) {
         try {
             Files.createDirectories(rootLocation);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.fileDescriptionRepository = fileDescriptionRepository;
     }
 
     @Override
     public void store(MultipartFile file) {
+        String filename = UUID.randomUUID().toString().replaceAll("-", "");
         try {
             if (file.isEmpty()) {
                 throw new StorageException("Failed to store empty file " + file.getOriginalFilename());
             }
-            Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
+            Files.copy(file.getInputStream(), this.rootLocation.resolve(filename));
         } catch (IOException e) {
             throw new StorageException("Failed to store file " + file.getOriginalFilename(), e);
         }
+        FileDescription fd = new FileDescription();
+        fd.setName(filename);
+        fd.setOriginalName(file.getOriginalFilename());
+        fd.setDescription("");
+        fileDescriptionRepository.save(fd);
     }
 
     @Override

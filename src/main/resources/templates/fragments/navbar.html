@@ -18,9 +18,9 @@
             <li th:classappend="${nav=='firmwares'?'active':''}" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Firmware<b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                    <li><a href="/manageFirmwares">Manage</a></li>
+                    <li><a href="/manageFirmwares" th:text="#{msg.manage}">Manage</a></li>
                     <li class="divider"></li>
-                    <li><a href="/uploadFirmwares">Add</a></li>
+                    <li><a href="/uploadFirmwares" th:text="#{msg.add}">Add</a></li>
                 </ul>
             </li>
 

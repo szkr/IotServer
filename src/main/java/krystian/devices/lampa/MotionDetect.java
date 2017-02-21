@@ -3,17 +3,25 @@ package krystian.devices.lampa;
 import krystian.devices.device.Device;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
  * 2/6/2017 11:47 PM
  */
 @Entity
-public class MotionDetect implements Serializable {
+public class MotionDetect {
     private Long id;
     private Timestamp detectionTime;
     private Device device;
+
+    MotionDetect(Device device) {
+        setDetectionTime(new Timestamp(System.currentTimeMillis()));
+        this.device = device;
+
+    }
+
+    public MotionDetect() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -55,14 +63,5 @@ public class MotionDetect implements Serializable {
     @Override
     public int hashCode() {
         return id.hashCode();
-    }
-
-    public MotionDetect(Device device) {
-        setDetectionTime(new Timestamp(System.currentTimeMillis()));
-        this.device = device;
-
-    }
-
-    public MotionDetect() {
     }
 }

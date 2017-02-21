@@ -40,7 +40,7 @@ public class SessionHandler {
                     }
                     if (e.getValue().getLastRcvMsgTime().get() + 15000 < System.currentTimeMillis() || e.getValue().getLastSentMsgTime().get() + 15000 < System.currentTimeMillis()) {
                         try {
-                            e.getValue().sendMessage(new TextMessage(String.format("{\"command\":\"heartbeat\"}")));
+                            e.getValue().sendMessage(new TextMessage("{\"command\":\"heartbeat\"}"));
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
@@ -106,4 +106,7 @@ public class SessionHandler {
         return new HashMap<>(sessions);
     }
 
+    public boolean isDeviceOnline(String deviceKey) {
+        return sessions.containsKey(deviceKey);
+    }
 }
