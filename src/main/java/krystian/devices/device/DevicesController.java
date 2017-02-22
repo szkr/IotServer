@@ -15,11 +15,13 @@ public class DevicesController {
 
     private final DeviceRepository devices;
     private final ApplicationContext context;
+    private final DeviceInfoUpdater updater;
 
     @Autowired
-    public DevicesController(DeviceRepository devices, ApplicationContext context) {
+    public DevicesController(DeviceRepository devices, ApplicationContext context, DeviceInfoUpdater updater) {
         this.devices = devices;
         this.context = context;
+        this.updater = updater;
     }
 
     @RequestMapping(value = "/devices")

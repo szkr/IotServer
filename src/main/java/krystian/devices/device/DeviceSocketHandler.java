@@ -2,10 +2,12 @@ package krystian.devices.device;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import krystian.devices.GlobalWSMessageHandler;
 import krystian.devices.device.dto.MessageWithId;
 import krystian.devices.sessions.DeviceMessage;
 import krystian.devices.sessions.SessionHandler;
 import krystian.devices.sessions.WSSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -26,6 +28,9 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
     private AtomicInteger msgId = new AtomicInteger();
     private ConcurrentHashMap<Integer, String> pending = new ConcurrentHashMap<>();
 
+    @Autowired
+    private GlobalWSMessageHandler globalHandler;
+
 
     public DeviceSocketHandler(SessionHandler handler, ObjectMapper mapper) {
         super();
@@ -40,13 +45,13 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
     }
 
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
+        if (globalHandler.messageReceived(message)) return;
         DeviceMessage dm;
         try {
             dm = mapper.readValue(message.getPayload(), DeviceMessage.class);
             handler.updateSession(dm.getKey(), session);
 
         } catch (IOException e) {
-            e.printStackTrace();
             return;
         }
         try {
