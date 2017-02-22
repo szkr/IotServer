@@ -58,6 +58,7 @@ public class ManageDevicesController {
             return "devices/test";
         model.addAttribute("deviceIsOnline", sessionHandler.isDeviceOnline(devices.findOne(Integer.parseInt(id)).getKey()));
         model.addAttribute("files", fileDescriptionRepository.findAll());
+        model.addAttribute("firmwareName", found.getFwName());
         model.addAttribute("curName", found.getName());
         model.addAttribute("curKey", found.getKey());
         return "manageDevices/device";

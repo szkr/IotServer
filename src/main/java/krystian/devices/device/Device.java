@@ -21,9 +21,20 @@ public class Device {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "fwName")
+    private String fwName;
 
     @Column(name = "key")
     private String key;
+
+    public Device(DeviceType type, String name) {
+        this.type = type;
+        this.name = name;
+        fwName = "Unknown";
+    }
+
+    public Device() {
+    }
 
     public String getKey() {
         return key;
@@ -57,14 +68,6 @@ public class Device {
         this.name = name;
     }
 
-    public Device(DeviceType type, String name) {
-        this.type = type;
-        this.name = name;
-    }
-
-    public Device() {
-    }
-
     @PrePersist
     public void generateKey() {
         if (key == null)
@@ -94,5 +97,13 @@ public class Device {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    public String getFwName() {
+        return fwName;
+    }
+
+    public void setFwName(String fwName) {
+        this.fwName = fwName;
     }
 }
