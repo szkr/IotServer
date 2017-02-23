@@ -83,14 +83,14 @@ public class ManageUsersController {
         CreateResponse r = new CreateResponse();
         r.message = "empty";
         r.createdId = -1;
-        if (!formData.containsKey("type") || formData.getFirst("type").isEmpty() || !formData.containsKey("login") || formData.getFirst("login").isEmpty() || !formData.containsKey("pass") || formData.getFirst("pass").isEmpty()) {
-            r.status = "error";
+        if (!formData.containsKey("role") || formData.getFirst("role").isEmpty() || !formData.containsKey("login") || formData.getFirst("login").isEmpty() || !formData.containsKey("pass") || formData.getFirst("pass").isEmpty()) {
+            r.status = "You need to complete all fields.";
             return r;
         }
         User u = new User();
         u.setPassword(formData.getFirst("pass"));
         u.setLogin(formData.getFirst("login"));
-        u.setRole(Role.USER);
+        u.setRole(Role.valueOf(formData.getFirst("role")));
         try {
             users.save(u);
         } catch (DataIntegrityViolationException e) {
