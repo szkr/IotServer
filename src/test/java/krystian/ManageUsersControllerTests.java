@@ -69,7 +69,7 @@ public class ManageUsersControllerTests {
                 .andExpect(content().string(containsString(" id=\"newUser\">")))
                 .andExpect(content().string(containsString("<input class=\"form-control\" type=\"text\" value=\"\" id=\"login\" name=\"login\" />")))
                 .andExpect(content().string(containsString("<input class=\"form-control\" type=\"text\" value=\"\" id=\"pass\" name=\"pass\" />")))
-                .andExpect(content().string(containsString("<select class=\"form-control\" id=\"type\" name=\"type\">")))
+                .andExpect(content().string(containsString("<select class=\"form-control\" id=\"role\" name=\"role\">")))
                 .andExpect(content().string(containsString("<button type=\"submit\" class=\"btn btn-primary\">")));
     }
 
@@ -80,7 +80,7 @@ public class ManageUsersControllerTests {
                 .param("login", "test")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("error")))
+                .andExpect(jsonPath("$.status", is("You need to complete all fields.")))
                 .andExpect(jsonPath("$.createdId", is(-1)))
                 .andExpect(jsonPath("$", hasKey("message")));
         Assert.assertEquals(1, userRepository.count());
@@ -90,7 +90,7 @@ public class ManageUsersControllerTests {
     @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t2createUser() throws Exception {
         MvcResult result = mockMvc.perform(post("/manageUsers/create")
-                .param("login", "test").param("pass", "testpass").param("type", "LAMP_WITH_SENSOR")
+                .param("login", "test").param("pass", "testpass").param("role", "ADMIN")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("ok")))
@@ -111,7 +111,7 @@ public class ManageUsersControllerTests {
     @WithMockUser(username = "Admin", authorities = {"ADMIN"})
     public void t3createDuplicateUser() throws Exception {
         mockMvc.perform(post("/manageUsers/create")
-                .param("login", "test").param("pass", "testpass").param("type", "LAMP_WITH_SENSOR")
+                .param("login", "test").param("pass", "testpass").param("role", "ADMIN")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("error")))
