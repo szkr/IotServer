@@ -40,6 +40,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeRequests()
                 .antMatchers("/", "/img/**", "/public/**", "/res/**", "/css/**", "/fonts/**", "/js/**", "/fw/**", WebSocketConfig.WS_PREFIX + "**").permitAll()
+                .antMatchers("/devices/**").permitAll()
                 .anyRequest().hasAuthority("ADMIN")
                 .and()
                 .formLogin()
