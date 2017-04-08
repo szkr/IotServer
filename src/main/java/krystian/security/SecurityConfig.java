@@ -23,7 +23,6 @@ import java.util.Locale;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
@@ -40,7 +39,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeRequests()
                 .antMatchers("/", "/img/**", "/public/**", "/res/**", "/css/**", "/fonts/**", "/js/**", "/fw/**", WebSocketConfig.WS_PREFIX + "**").permitAll()
-                .antMatchers("/devices/**").hasAuthority("USER")
+                .antMatchers("/devices/**").hasAnyAuthority("USER", "ADMIN")
                 .anyRequest().hasAuthority("ADMIN")
                 .and()
                 .formLogin()
