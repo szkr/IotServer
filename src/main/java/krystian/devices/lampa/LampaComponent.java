@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -52,7 +54,14 @@ public class LampaComponent implements DeviceComponent {
         }
         model.addAttribute("type", "lampa");
         model.addAttribute("envBrightness", l.ambientBrightness);
-        model.addAttribute("detections", motionDetectRepository.findByDeviceOrderByDetectionTimeDesc(device));
+
+        List<MotionDetect> motionDetect = motionDetectRepository.findMotionDetect(device.getId(), new Timestamp(System.currentTimeMillis()));
+        int detectionsPerHour[] = new int[24];
+        for (int i = 0; i < 24; i++)
+            detectionsPerHour[i] = 0;
+        motionDetect.forEach(o -> detectionsPerHour[o.getDetectionTime().getHours()]++);
+        model.addAttribute("detectionsPerHour", detectionsPerHour);
+        model.addAttribute("detections", motionDetect);
         return "devices/lampa";
     }
 

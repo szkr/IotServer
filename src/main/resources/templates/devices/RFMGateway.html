@@ -134,49 +134,74 @@ $("document").ready(function () {
 });
 /*]]>*/</script>
 <div style="text-align: center">
-    <div style="height: 40px">
-        <div align="left" style="float: left">
-            <h4 style="text-align: left" id="mode">Status:</h4>
-        </div>
-        <div align="right" style="float: right">
-            <form id="setMode" class="form-inline">
-                <div class="form-group">
-                    <label for="rmode">Mode</label>
-                    <select class="form-control" id="rmode" name="mode">
-                        <option value="scan">Scanner</option>
-                        <option value="idle">Idle</option>
-                    </select>
+
+
+    <div id="exTab1" class="container col-md-12">
+        <ul class="nav nav-pills">
+            <li class="active">
+                <a href="#1a" data-toggle="tab">Overview</a>
+            </li>
+            <li>
+                <a href="#2a" data-toggle="tab">Using nav-pills</a>
+            </li>
+        </ul>
+
+        <div class="tab-content clearfix">
+            <div class="tab-pane active" id="1a">
+                <div style="height: 40px">
+                    <div align="left" style="float: left">
+                        <h4 style="text-align: left" id="mode">Status:</h4>
+                    </div>
+                    <div align="right" style="float: right">
+                        <form id="setMode" class="form-inline">
+                            <div class="form-group">
+                                <label for="rmode">Mode</label>
+                                <select class="form-control" id="rmode" name="mode">
+                                    <option value="scan">Scanner</option>
+                                    <option value="idle">Idle</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </form>
+                <div style="background-color: rgba(255, 255, 255, 0.45);border-radius: 5px; padding-top:5px; padding-left:3px; padding-right:3px">
+                    <canvas id="myChart" width="500" height="230"></canvas>
+                </div>
+                <div align="left" style="float: left;">
+                    <form class="form-inline" id="setScanParameters">
+                        <div class="form-group">
+                            <label for="from">From:</label>
+                            <input class="form-control" id="from" name="from" value="433.05"></input>
+                        </div>
+                        <div class="form-group">
+                            <label for="to">To:</label>
+                            <input class="form-control" id="to" name="to" value="434.79"></input>
+                        </div>
+                        <div class="form-group">
+                            <label for="samples">Samples:</label>
+                            <input type="number" step="100" class="form-control" id="samples" name="samples"
+                                   value="500"></input>
+                        </div>
+                        <div class="form-group">
+                            <label for="stime">Settle time:</label>
+                            <input type="number" step="1" class="form-control" id="stime" name="stime"
+                                   value="5"></input>
+                        </div>
+                        <button type="submit" class="btn btn-default">Set</button>
+                    </form>
+                </div>
+                <div align="right" style="float: right; font-size: 14px">
+                    <span style="line-height: 30px;height: 30px;margin-right: 40px"
+                          id="minPower">Min:-00dBm @ 000.00MHz</span>
+                    <span style="line-height: 40px;height: 40px" id="maxPower">Max:-00dBm @ 000.00MHz</span>
+                </div>
+            </div>
+            <div class="tab-pane" id="2a">
+                <h3>We use the class nav-pills instead of nav-tabs which automatically creates a background color
+                    for
+                    the tab</h3>
+            </div>
         </div>
-    </div>
-    <div style="background-color: rgba(255, 255, 255, 0.45);border-radius: 5px; padding-top:5px; padding-left:3px; padding-right:3px">
-        <canvas id="myChart" width="500" height="230"></canvas>
-    </div>
-    <div align="left" style="float: left;">
-        <form class="form-inline" id="setScanParameters">
-            <div class="form-group">
-                <label for="from">From:</label>
-                <input class="form-control" id="from" name="from" value="433.05"></input>
-            </div>
-            <div class="form-group">
-                <label for="to">To:</label>
-                <input class="form-control" id="to" name="to" value="434.79"></input>
-            </div>
-            <div class="form-group">
-                <label for="samples">Samples:</label>
-                <input type="number" step="100" class="form-control" id="samples" name="samples" value="500"></input>
-            </div>
-            <div class="form-group">
-                <label for="stime">Settle time:</label>
-                <input type="number" step="1" class="form-control" id="stime" name="stime" value="5"></input>
-            </div>
-            <button type="submit" class="btn btn-default">Set</button>
-        </form>
-    </div>
-    <div align="right" style="float: right; font-size: 14px">
-        <span style="line-height: 30px;height: 30px;margin-right: 40px" id="minPower">Min:-00dBm @ 000.00MHz</span>
-        <span style="line-height: 40px;height: 40px" id="maxPower">Max:-00dBm @ 000.00MHz</span>
     </div>
 
 

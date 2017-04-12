@@ -11,7 +11,6 @@
     background: url('/res/wild_oliva.png')
 }
 
-
 #wrapper {
     padding-left: 70px;
     transition: all .4s ease 0s;
@@ -60,7 +59,7 @@
 
 .sidebar-nav li {
     line-height: 40px;
-    text-indent: 8px;
+    text-indent: 20px;
 }
 
 .sidebar-nav li a {
@@ -122,8 +121,14 @@
     }
 }
 
-.container-fluid {
-    padding-left: 5px;
+#exTab1 .nav-pills > li > a {
+    border-radius: 2px;
+    background-color: rgba(1, 1, 1, 0.3);
+
+}
+
+#exTab1 .nav-pills > li.active > a {
+    background-color: rgba(31, 140, 31, 0.3);
 }
 
 
