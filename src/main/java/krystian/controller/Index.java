@@ -15,6 +15,7 @@ import java.security.Principal;
 public class Index {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(Model model, Principal principal) {
+
         return "index";
     }
 }

@@ -1,0 +1,183 @@
+<!--suppress ThymeleafVariablesResolveInspection -->
+<link rel="stylesheet" href="/css/rangeslider.css"/>
+
+<script src="/js/rangeslider.js"></script>
+<script src="/js/Chart.js"></script>
+<script>/*<![CDATA[*/
+$("document").ready(function () {
+    var sId = selectedID;
+    for (var i = 0; i < timeouts.length; i++)
+        clearTimeout(timeouts[i]);
+    updateStatus();
+
+    function updateStatus() {
+        $.getJSON("/devices/RFMGateway/" + sId + "/status", function (jd) {
+            $("#mode").text("Status: " + jd.lastActivity);
+
+            timeouts.push(setTimeout(function () {
+                updateStatus()
+            }, 2000));
+        });
+    }
+
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        animation: false,
+        type: 'line',
+        data: {
+            datasets: [{
+                data: [],
+                fill: false,
+                backgroundColor: 'rgb(255, 20, 0)',
+                borderColor: 'rgb(120, 0, 0)',
+                borderRadius: 1,
+                pointRadius: 1.5
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom',
+                    ticks: {
+                        fontColor: 'rgb(40, 40, 40)'
+                    }
+                }],
+                yAxes: [{
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        min: -105,
+                        max: -20,
+                        maxTicksLimit: 16,
+                        fontColor: 'rgb(40, 40, 40)'
+                    }
+                }]
+            },
+            legend: {
+                display: false
+            }
+        }
+    });
+
+    function updateChart() {
+        myChart.update();
+        var minPower = 5;
+        var minFrequency = 0;
+        var maxPower = -120;
+        var maxFrequency = 0;
+        for (var i = 0; i < myChart.data.datasets[0].data.length; i++) {
+            var it = myChart.data.datasets[0].data[i];
+            if (it.y < minPower) {
+                minPower = it.y;
+                minFrequency = it.x;
+            }
+            if (it.y > maxPower) {
+                maxPower = it.y;
+                maxFrequency = it.x;
+            }
+        }
+        $("#maxPower").text("Max: " + maxPower + "dBm @ " + maxFrequency.toFixed(3) + "MHz");
+        $("#minPower").text("Min: " + minPower + "dBm @ " + minFrequency.toFixed(3) + "MHz");
+    }
+
+    updateChart();
+
+    $("#setScanParameters").submit(function (e) {
+        var url = "/devices/RFMGateway/" + sId + "/setScanParameters";
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#setScanParameters").serialize(),
+            success: function (data) {
+                $('#from').val(data.from / 1000);
+                $('#to').val(data.to / 1000);
+                $('#samples').val(data.samples);
+                $('#stime').val(data.stime);
+                alert("ok");
+            }
+        });
+
+        e.preventDefault();
+    });
+
+    function getScanParameters() {
+        $.getJSON("/devices/RFMGateway/" + sId + "/getScanParameters", function (data) {
+            $('#from').val(data.from / 1000);
+            $('#to').val(data.to / 1000);
+            $('#samples').val(data.samples);
+            $('#stime').val(data.stime);
+        });
+    }
+
+    function updateChartPoints() {
+        $.getJSON("/devices/RFMGateway/" + sId + "/getPoints", function (data) {
+            myChart.data.datasets[0].data = data;
+            updateChart();
+        });
+    }
+
+    getScanParameters();
+    setInterval(function () {
+        updateChartPoints();
+    }, 200);
+
+    $("select#rmode").change(function () {
+        $.ajax({
+            type: "POST",
+            url: "/devices/RFMGateway/" + sId + "/setMode",
+            data: $("#setMode").serialize(),
+            success: function (data) {
+            }
+        });
+    });
+});
+/*]]>*/</script>
+<div style="text-align: center">
+    <div style="height: 40px">
+        <div align="left" style="float: left">
+            <h4 style="text-align: left" id="mode">Status:</h4>
+        </div>
+        <div align="right" style="float: right">
+            <form id="setMode" class="form-inline">
+                <div class="form-group">
+                    <label for="rmode">Mode</label>
+                    <select class="form-control" id="rmode" name="mode">
+                        <option value="scan">Scanner</option>
+                        <option value="idle">Idle</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div style="background-color: rgba(255, 255, 255, 0.45);border-radius: 5px; padding-top:5px; padding-left:3px; padding-right:3px">
+        <canvas id="myChart" width="500" height="230"></canvas>
+    </div>
+    <div align="left" style="float: left;">
+        <form class="form-inline" id="setScanParameters">
+            <div class="form-group">
+                <label for="from">From:</label>
+                <input class="form-control" id="from" name="from" value="433.05"></input>
+            </div>
+            <div class="form-group">
+                <label for="to">To:</label>
+                <input class="form-control" id="to" name="to" value="434.79"></input>
+            </div>
+            <div class="form-group">
+                <label for="samples">Samples:</label>
+                <input type="number" step="100" class="form-control" id="samples" name="samples" value="500"></input>
+            </div>
+            <div class="form-group">
+                <label for="stime">Settle time:</label>
+                <input type="number" step="1" class="form-control" id="stime" name="stime" value="5"></input>
+            </div>
+            <button type="submit" class="btn btn-default">Set</button>
+        </form>
+    </div>
+    <div align="right" style="float: right; font-size: 14px">
+        <span style="line-height: 30px;height: 30px;margin-right: 40px" id="minPower">Min:-00dBm @ 000.00MHz</span>
+        <span style="line-height: 40px;height: 40px" id="maxPower">Max:-00dBm @ 000.00MHz</span>
+    </div>
+
+
+</div>
