@@ -17,7 +17,6 @@ public class MotionDetect {
     MotionDetect(Device device) {
         setDetectionTime(new Timestamp(System.currentTimeMillis()));
         this.device = device;
-
     }
 
     public MotionDetect() {
