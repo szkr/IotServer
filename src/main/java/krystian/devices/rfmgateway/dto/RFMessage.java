@@ -1,4 +1,4 @@
-package krystian.devices.lampa;
+package krystian.devices.rfmgateway.dto;
 
 import krystian.devices.device.Device;
 
@@ -9,17 +9,17 @@ import java.sql.Timestamp;
  * 2/6/2017 11:47 PM
  */
 @Entity
-public class MotionDetect {
+public class RFMessage {
     private Long id;
-    private Timestamp detectionTime;
+    private Timestamp receiveTime;
     private Device device;
-
-    MotionDetect(Device device) {
-        setDetectionTime(new Timestamp(System.currentTimeMillis()));
+    private String content;
+    RFMessage(Device device) {
+        setReceiveTime(new Timestamp(System.currentTimeMillis()));
         this.device = device;
     }
 
-    public MotionDetect() {
+    public RFMessage() {
     }
 
     @Id
@@ -41,12 +41,12 @@ public class MotionDetect {
         this.device = device;
     }
 
-    public Timestamp getDetectionTime() {
-        return detectionTime;
+    public Timestamp getReceiveTime() {
+        return receiveTime;
     }
 
-    public void setDetectionTime(Timestamp detectionTime) {
-        this.detectionTime = detectionTime;
+    public void setReceiveTime(Timestamp receiveTime) {
+        this.receiveTime = receiveTime;
     }
 
     @Override
@@ -54,12 +54,20 @@ public class MotionDetect {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MotionDetect that = (MotionDetect) o;
+        RFMessage that = (RFMessage) o;
         return id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

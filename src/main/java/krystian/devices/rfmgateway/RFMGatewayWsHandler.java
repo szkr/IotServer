@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import krystian.devices.device.Device;
 import krystian.devices.device.DeviceSocketHandler;
 import krystian.devices.device.dto.MessageWithId;
+import krystian.devices.rfmgateway.dto.RFMessage;
+import krystian.devices.rfmgateway.dto.RFMessageRepository;
 import krystian.devices.sessions.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,9 @@ public class RFMGatewayWsHandler extends DeviceSocketHandler {
 
     @Autowired
     private ChartStorage storage;
+
+    @Autowired
+    RFMessageRepository repository;
 
 
     @Autowired
@@ -46,9 +51,25 @@ public class RFMGatewayWsHandler extends DeviceSocketHandler {
     private void storeChartPoints(WebSocketSession session, TextMessage message) {
         Optional<Device> d = handler.getDevice(session);
         if (d.isPresent()) {
+
             ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode n = null;
             try {
-                JsonNode n = objectMapper.readTree(message.getPayload());
+                n = objectMapper.readTree(message.getPayload());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                String msg = n.get("msg").asText();
+                RFMessage m = new RFMessage();
+                m.setContent(msg);
+                m.setDevice(handler.getDevice(session).get());
+                repository.save(m);
+            } catch (Exception e) {
+            }
+
+            try {
                 JsonNode freqBuffer = n.get("f");
                 JsonNode rssiBuffer = n.get("s");
 
@@ -61,7 +82,7 @@ public class RFMGatewayWsHandler extends DeviceSocketHandler {
                     pts.add(poi);
                 }
                 storage.addPoints(handler.getDevice(session).get().getKey(), pts);
-            } catch (IOException e) {
+            } catch (Exception e) {
             }
         }
     }

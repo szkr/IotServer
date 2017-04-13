@@ -4,15 +4,16 @@ import krystian.devices.device.*;
 import krystian.devices.device.dto.DeviceStatus;
 import krystian.devices.device.dto.MessageWithId;
 import krystian.devices.device.dto.UpdateFirmware;
-import krystian.devices.rfmgateway.dto.LampDeviceInfo;
-import krystian.devices.rfmgateway.dto.LampRestart;
-import krystian.devices.rfmgateway.dto.RFMGatewayMode;
-import krystian.devices.rfmgateway.dto.RFMGatewayScanParameters;
+import krystian.devices.rfmgateway.dto.*;
 import krystian.devices.sessions.SessionHandler;
 import krystian.devices.sessions.WSSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,9 @@ public class RFMGatewayComponent implements DeviceComponent {
     private final DeviceRepository deviceRepository;
     private final SessionHandler sessionHandler;
     private final RFMGatewayWsHandler wsHandler;
+
+    @Autowired
+    private RFMessageRepository repo;
     @Autowired
     private ChartStorage storage;
 
@@ -158,10 +162,29 @@ public class RFMGatewayComponent implements DeviceComponent {
         return l;
     }
 
+    @RequestMapping(value = "devices/RFMGateway/{id}/setRegisters", method = RequestMethod.POST)
+    public List<Integer> setRegisters(@PathVariable("id") int id, @RequestParam("") List<Integer> registers) {
+        RFMGatewayRegisters r = new RFMGatewayRegisters();
+        r.reg = registers;
+        return registers;
+    }
+
     @RequestMapping("devices/RFMGateway/{id}/getPoints")
     public List<ChartStorage.Point> getPoints(@PathVariable("id") int id) {
         Optional<List<ChartStorage.Point>> o = storage.getChart(deviceRepository.findOne(id).getKey());
         return o.isPresent() ? o.get() : new ArrayList<>();
+    }
+
+    @RequestMapping(value = "devices/RFMGateway/{id}/getMessages", method = RequestMethod.GET)
+    public ModelAndView getMessages(@PathVariable("id") int id, Model m) {
+        ModelAndView mav = new ModelAndView("devices/RFMGatewayMessages");
+
+        PageRequest pageRequest =
+                new PageRequest(0, 10, Sort.Direction.DESC, "buildNumber");
+        Page<RFMessage> artifactsPage =
+                repo.findByDevice(deviceRepository.findOne(id), pageRequest);
+        m.addAttribute("messages", artifactsPage.getContent());
+        return mav;
     }
 
     @RequestMapping("devices/RFMGateway/{id}/setMode")
