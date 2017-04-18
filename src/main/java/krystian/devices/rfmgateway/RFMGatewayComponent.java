@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -180,7 +181,7 @@ public class RFMGatewayComponent implements DeviceComponent {
         ModelAndView mav = new ModelAndView("devices/RFMGatewayMessages");
 
         PageRequest pageRequest =
-                new PageRequest(0, 10, Sort.Direction.DESC, "buildNumber");
+                new PageRequest(0, 10, Sort.Direction.DESC, "receiveTime");
         Page<RFMessage> artifactsPage =
                 repo.findByDevice(deviceRepository.findOne(id), pageRequest);
         m.addAttribute("messages", artifactsPage.getContent());
@@ -197,6 +198,27 @@ public class RFMGatewayComponent implements DeviceComponent {
             };
             l = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, RFMGatewayMode.class);
 
+            return true;
+        } finally {
+
+        }
+    }
+
+    @RequestMapping("devices/RFMGateway/{id}/sendMessage")
+    public boolean sendMessage(@PathVariable("id") int id, @RequestParam("msg") String msgg) {
+        MessageWithId m = null;
+        try {
+            MessageWithId a = new MessageWithId() {
+                public String command = "sendMessage";
+                public String msg = msgg;
+            };
+            m = wsHandler.getResponse(deviceRepository.findOne(id).getKey(), a, MessageWithId.class);
+            RFMessage me = new RFMessage();
+            me.setContent("<- " + msgg);
+            me.setDevice(deviceRepository.findOne(id));
+            me.setReceiveTime(new Timestamp(System.currentTimeMillis()));
+            me.setRssi(0);
+            repo.save(me);
             return true;
         } finally {
 

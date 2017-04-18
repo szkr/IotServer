@@ -2,6 +2,6 @@
 <div xmlns:th="http://www.thymeleaf.org">
     <ul class="list-group" style="overflow-y:auto; max-height: 600px;margin: auto">
         <li class="list-group-item" th:each="msg:${messages}"
-            th:text="${msg.getReceiveTime()+' '+msg.getContent()}"></li>
+            th:text="${msg.getRssi()+'dBm '+msg.getReceiveTime()+' '+msg.getContent()}"></li>
     </ul>
 </div>

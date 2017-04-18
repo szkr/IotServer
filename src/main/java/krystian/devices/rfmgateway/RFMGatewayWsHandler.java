@@ -14,6 +14,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,10 +26,9 @@ import java.util.Optional;
 public class RFMGatewayWsHandler extends DeviceSocketHandler {
 
     @Autowired
-    private ChartStorage storage;
-
-    @Autowired
     RFMessageRepository repository;
+    @Autowired
+    private ChartStorage storage;
 
 
     @Autowired
@@ -63,8 +63,10 @@ public class RFMGatewayWsHandler extends DeviceSocketHandler {
             try {
                 String msg = n.get("msg").asText();
                 RFMessage m = new RFMessage();
-                m.setContent(msg);
+                m.setContent("-> " + msg);
                 m.setDevice(handler.getDevice(session).get());
+                m.setRssi(n.get("rssi").asInt());
+                m.setReceiveTime(new Timestamp(System.currentTimeMillis()));
                 repository.save(m);
             } catch (Exception e) {
             }

@@ -14,6 +14,7 @@ public class RFMessage {
     private Timestamp receiveTime;
     private Device device;
     private String content;
+    private int rssi;
     RFMessage(Device device) {
         setReceiveTime(new Timestamp(System.currentTimeMillis()));
         this.device = device;
@@ -69,5 +70,14 @@ public class RFMessage {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+
+    public int getRssi() {
+        return rssi;
+    }
+
+    public void setRssi(int rssi) {
+        this.rssi = rssi;
     }
 }
