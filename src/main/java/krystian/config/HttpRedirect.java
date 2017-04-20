@@ -1,9 +1,5 @@
 package krystian.config;
 
-import io.undertow.servlet.api.SecurityConstraint;
-import io.undertow.servlet.api.SecurityInfo;
-import io.undertow.servlet.api.TransportGuaranteeType;
-import io.undertow.servlet.api.WebResourceCollection;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.undertow.UndertowEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
@@ -21,12 +17,12 @@ public class HttpRedirect {
 
 
         //Uncomment to redirect http to https
-        undertow.addDeploymentInfoCustomizers(deploymentInfo -> deploymentInfo.addSecurityConstraint(new SecurityConstraint()
-                .addWebResourceCollection(new WebResourceCollection()
-                        .addUrlPattern("/*"))
-                .setTransportGuaranteeType(TransportGuaranteeType.CONFIDENTIAL)
-                .setEmptyRoleSemantic(SecurityInfo.EmptyRoleSemantic.PERMIT))
-                .setConfidentialPortManager(httpServerExchange -> 443));
+//        undertow.addDeploymentInfoCustomizers(deploymentInfo -> deploymentInfo.addSecurityConstraint(new SecurityConstraint()
+//                .addWebResourceCollection(new WebResourceCollection()
+//                        .addUrlPattern("/*"))
+//                .setTransportGuaranteeType(TransportGuaranteeType.CONFIDENTIAL)
+//                .setEmptyRoleSemantic(SecurityInfo.EmptyRoleSemantic.PERMIT))
+//                .setConfidentialPortManager(httpServerExchange -> 443));
 
 
         return undertow;

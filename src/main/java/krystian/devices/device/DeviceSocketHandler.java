@@ -70,7 +70,7 @@ public abstract class DeviceSocketHandler extends TextWebSocketHandler {
 
 
     public <T> T getResponse(String key, MessageWithId command, Class<T> valueType) {
-        return getResponse(key, command, valueType, 200);
+        return getResponse(key, command, valueType, 300);
     }
 
     private <T> T getResponse(String key, MessageWithId command, Class<T> valueType, int timeout) {

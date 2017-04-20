@@ -1,9 +1,12 @@
 package krystian.devices.rfmgateway;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import krystian.devices.device.Device;
+import krystian.devices.device.DeviceRepository;
 import krystian.devices.device.DeviceSocketHandler;
+import krystian.devices.device.DeviceType;
 import krystian.devices.device.dto.MessageWithId;
 import krystian.devices.rfmgateway.dto.RFMessage;
 import krystian.devices.rfmgateway.dto.RFMessageRepository;
@@ -27,13 +30,20 @@ public class RFMGatewayWsHandler extends DeviceSocketHandler {
 
     @Autowired
     RFMessageRepository repository;
+
+    @Autowired
+    DeviceRepository deviceRepository;
+
     @Autowired
     private ChartStorage storage;
+
+    private List<MsgReceivedListener> listenerlist;
 
 
     @Autowired
     public RFMGatewayWsHandler(SessionHandler handler, ObjectMapper mapper) {
         super(handler, mapper);
+        listenerlist = new ArrayList<>();
     }
 
 
@@ -45,7 +55,44 @@ public class RFMGatewayWsHandler extends DeviceSocketHandler {
     @Override
     public void handleTxtMessage(WebSocketSession session, TextMessage message) {
         storeChartPoints(session, message);
+        Optional<Device> d = handler.getDevice(session);
+        if (d.isPresent()) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode n = objectMapper.readTree(message.getPayload());
+                String msg = n.get("fwdMsg").asText();
+                String[] m = msg.split(";");
+                String id = m[0];
+                msg = m[1];
+                for (MsgReceivedListener l : listenerlist)
+                    l.msgReceived(id, msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    private class FWDMSG{
+        public String fwdMsg;
+
+        public FWDMSG(String fwdMsg) {
+            this.fwdMsg = fwdMsg;
+        }
+    }
+    public void sendDeviceMessage(String id, String message) {
+        ObjectMapper mapper = new ObjectMapper();
+        handler.getSessions().forEach((key, session) -> {
+            if (deviceRepository.findOneByKey(id).getDeviceType().equals(DeviceType.RFM_GATEWAY))
+                try {
+                    sendMessage(session, new TextMessage(mapper.writeValueAsString(new FWDMSG(id + ";" + message))));
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+        });
+    }
+
+    public void addListener(MsgReceivedListener l) {
+        listenerlist.add(l);
     }
 
     private void storeChartPoints(WebSocketSession session, TextMessage message) {
